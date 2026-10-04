@@ -1,6 +1,7 @@
 import app from './app.js';
 import { connectDatabase } from './config/database.js';
 import { env } from './config/env.js';
+import { startDailyAttendanceReportJob } from './jobs/dailyAttendanceReport.job.js';
 
 async function startServer() {
   try {
@@ -8,6 +9,7 @@ async function startServer() {
       throw new Error('JWT_SECRET must be configured with at least 32 characters.');
     }
     await connectDatabase();
+    startDailyAttendanceReportJob();
     app.listen(env.port, () => {
       console.log(`API server listening on http://localhost:${env.port}`);
     });

@@ -31,9 +31,9 @@ function getTransporter() {
   return transporter;
 }
 
-async function sendMessage({ to, subject, text }, kind) {
+async function sendMessage({ to, subject, text, html }, kind) {
   try {
-    await getTransporter().sendMail({ from: env.emailUser, to, subject, text });
+    await getTransporter().sendMail({ from: env.emailUser, to, subject, text, ...(html ? { html } : {}) });
     return true;
   } catch (error) {
     logEmailFailure(kind, error);
@@ -75,4 +75,49 @@ export async function sendLateAttendanceNotifications({ employee, attendance }) 
   }
 
   return { employeeWarningSent: employeeResult };
+}
+
+export function buildDailyAttendanceReportContent({ date, rows }) {
+  const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[character]);
+  const bodyRows = rows.map((row) => `
+    <tr>
+      <td>${escapeHtml(row.employeeId)}</td>
+      <td>${escapeHtml(row.name)}</td>
+      <td>${escapeHtml(row.email)}</td>
+      <td>${escapeHtml(row.punchInTime || '—')}</td>
+      <td>${escapeHtml(row.status)}</td>
+    </tr>`).join('');
+  const html = `<!doctype html>
+    <html><body>
+      <h1>Daily attendance report</h1>
+      <p>Date: ${escapeHtml(date)} (IST)</p>
+      <table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse">
+        <thead><tr><th>Employee ID</th><th>Employee Name</th><th>Email</th><th>Punch-in Time</th><th>Status</th></tr></thead>
+        <tbody>${bodyRows || '<tr><td colspan="5">No registered employees</td></tr>'}</tbody>
+      </table>
+    </body></html>`;
+  const text = [
+    `Daily attendance report - ${date} (IST)`,
+    '',
+    'Employee ID | Employee Name | Email | Punch-in Time | Status',
+    ...rows.map((row) => `${row.employeeId} | ${row.name} | ${row.email} | ${row.punchInTime || '—'} | ${row.status}`),
+  ].join('\n');
+
+  return { subject: `Daily attendance report - ${date}`, text, html };
+}
+
+export async function sendDailyAttendanceReport({ date, rows }) {
+  if (isPlaceholder(env.hrEmail)) {
+    logEmailFailure('daily attendance report', { code: 'EMAIL_NOT_CONFIGURED' });
+    return false;
+  }
+
+  const content = buildDailyAttendanceReportContent({ date, rows });
+
+  return sendMessage({
+    to: env.hrEmail,
+    ...content,
+  }, 'daily attendance report');
 }
