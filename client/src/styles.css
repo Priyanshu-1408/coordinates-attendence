@@ -1,0 +1,44 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #18212f; background: #f3f5f8; font-synthesis: none; text-rendering: optimizeLegibility; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at 15% 10%, #e4edff 0, transparent 35%), #f3f5f8; }
+button, input, select { font: inherit; }
+.auth-layout { min-height: 100vh; display: grid; place-items: center; padding: 28px 18px; }
+.auth-card { width: min(100%, 460px); padding: 38px; border: 1px solid #e5e9f0; border-radius: 20px; background: rgba(255,255,255,.96); box-shadow: 0 24px 70px rgba(28,43,67,.09); }
+.brand-mark { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 14px; color: white; background: #315fce; font-size: 15px; font-weight: 750; letter-spacing: -.04em; }
+.brand-mark.small { width: 34px; height: 34px; border-radius: 10px; font-size: 12px; }
+.eyebrow { margin: 26px 0 9px; color: #315fce; font-size: 11px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+h1 { margin: 0; font-size: clamp(29px, 6vw, 36px); letter-spacing: -.045em; line-height: 1.12; }
+.description { margin: 12px 0 24px; color: #667085; font-size: 15px; line-height: 1.6; }
+.form { display: grid; gap: 15px; }
+.form label { display: grid; gap: 7px; color: #344054; font-size: 13px; font-weight: 650; }
+.form input, .form select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #d0d5dd; border-radius: 9px; outline: none; color: #18212f; background: white; }
+.form input:focus, .form select:focus { border-color: #6489e7; box-shadow: 0 0 0 3px #e9efff; }
+.form button, .button-secondary { min-height: 44px; padding: 0 16px; border: 0; border-radius: 9px; color: white; background: #315fce; font-weight: 700; cursor: pointer; }
+.form button:disabled { opacity: .65; cursor: wait; }
+.form-footer { margin: 20px 0 0; color: #667085; font-size: 13px; text-align: center; }
+a { color: #315fce; font-weight: 650; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.form-error { margin: 0; color: #b42318; font-size: 13px; }
+.dashboard-shell { min-height: 100vh; }
+.topbar { min-height: 70px; padding: 0 max(24px, calc((100% - 1040px) / 2)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e9f0; background: rgba(255,255,255,.9); }
+.brand { display: flex; align-items: center; gap: 11px; font-weight: 750; }
+.button-secondary { min-height: 38px; padding: 0 13px; color: #344054; background: #f2f4f7; font-size: 13px; }
+.dashboard-card { width: min(calc(100% - 36px), 920px); margin: 58px auto; padding: 42px; border: 1px solid #e5e9f0; border-radius: 18px; background: white; box-shadow: 0 18px 55px rgba(28,43,67,.06); }
+.dashboard-card .eyebrow { margin-top: 0; }
+.placeholder { display: grid; gap: 7px; padding: 23px; border: 1px dashed #cbd5e1; border-radius: 12px; color: #667085; background: #fafbfc; font-size: 14px; }
+.placeholder strong { color: #344054; }
+.account-meta { margin: 22px 0 0; color: #667085; font-size: 12px; }
+.attendance-panel { margin-top: 30px; padding: 24px; border: 1px solid #e5e9f0; border-radius: 14px; background: #fcfdff; }
+.attendance-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.section-label { margin: 0 0 5px; color: #667085; font-size: 12px; font-weight: 650; }
+.attendance-heading h2 { margin: 0; font-size: 18px; letter-spacing: -.02em; }
+.attendance-badge { padding: 6px 10px; border-radius: 999px; color: #087443; background: #e8f7ef; font-size: 12px; font-weight: 750; }
+.attendance-badge.late { color: #b54708; background: #fff3e0; }
+.attendance-note { margin: 18px 0 0; color: #667085; font-size: 14px; }
+.punch-time { margin: 20px 0 0; color: #475467; font-size: 14px; }
+.punch-time strong { color: #18212f; }
+.punch-button { min-height: 44px; margin-top: 18px; padding: 0 20px; border: 0; border-radius: 9px; color: white; background: #315fce; font-weight: 700; cursor: pointer; }
+.punch-button:disabled { opacity: .65; cursor: wait; }
+.attendance-feedback { margin-top: 14px; line-height: 1.5; }
+.success-message { color: #087443; font-size: 13px; }
+@media (max-width: 520px) { .auth-card, .dashboard-card { padding: 28px 22px; } .dashboard-card { margin-top: 28px; } }
