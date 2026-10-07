@@ -46,12 +46,9 @@ export async function today(request, response, next) {
 export async function punchIn(request, response, next) {
   try {
     if (officeConfigurationError()) {
-      return response
-        .status(503)
-        .json({
-          error:
-            "Office location is not configured. Contact your administrator.",
-        });
+      return response.status(503).json({
+        error: "Office location is not configured. Contact your administrator.",
+      });
     }
 
     const { latitude, longitude } = request.body ?? {};
@@ -123,14 +120,18 @@ export async function punchIn(request, response, next) {
             await attendance.save();
           } catch (error) {
             console.error("[email] could not record warning email state", {
-              code: typeof error?.code === "string" ? error.code : "DATABASE_UPDATE_FAILED",
+              code:
+                typeof error?.code === "string"
+                  ? error.code
+                  : "DATABASE_UPDATE_FAILED",
             });
           }
         }
       } catch (error) {
         // Attendance is already saved. Email failures must never undo the punch-in.
         console.error("[email] late attendance notifications failed", {
-          code: typeof error?.code === "string" ? error.code : "EMAIL_SEND_FAILED",
+          code:
+            typeof error?.code === "string" ? error.code : "EMAIL_SEND_FAILED",
         });
       }
     }
