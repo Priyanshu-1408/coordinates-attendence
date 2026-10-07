@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "report:daily": "node src/scripts/run-daily-report.js"
+    "report:daily": "node src/scripts/run-daily-report.js",
+    "create:hr-test-user": "node src/scripts/create-hr-test-user.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
