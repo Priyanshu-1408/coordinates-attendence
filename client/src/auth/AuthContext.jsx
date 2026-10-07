@@ -51,6 +51,15 @@ export function AuthProvider({ children }) {
     punchIn(location) {
       return apiRequest('/attendance/punch-in', { method: 'POST', body: JSON.stringify(location) });
     },
+    getHrEmployees() {
+      return apiRequest('/hr/employees');
+    },
+    getHrAttendanceToday() {
+      return apiRequest('/hr/attendance/today');
+    },
+    getHrAttendanceHistory(date) {
+      return apiRequest(`/hr/attendance/history?date=${encodeURIComponent(date)}`);
+    },
     logout() {
       localStorage.removeItem(TOKEN_KEY);
       setUser(null);

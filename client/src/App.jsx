@@ -137,13 +137,94 @@ function Dashboard({ kind }) {
   </section></main>;
 }
 
+function indiaDateInputValue() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function HrDashboard() {
+  const { user, logout, getHrEmployees, getHrAttendanceToday, getHrAttendanceHistory } = useAuth();
+  const [selectedDate, setSelectedDate] = React.useState(indiaDateInputValue);
+  const [report, setReport] = React.useState(null);
+  const [employeeCount, setEmployeeCount] = React.useState(0);
+  const [filter, setFilter] = React.useState('All');
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
+
+  React.useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError('');
+    const attendanceRequest = selectedDate === indiaDateInputValue()
+      ? getHrAttendanceToday()
+      : getHrAttendanceHistory(selectedDate);
+    Promise.all([getHrEmployees(), attendanceRequest])
+      .then(([employeeData, attendanceData]) => {
+        if (!active) return;
+        setEmployeeCount(employeeData.employees.length);
+        setReport(attendanceData);
+      })
+      .catch((requestError) => { if (active) setError(requestError.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [selectedDate, getHrEmployees, getHrAttendanceToday, getHrAttendanceHistory]);
+
+  const summary = report?.summary ?? { present: 0, late: 0, absent: 0 };
+  const filteredEmployees = (report?.employees ?? []).filter((employee) => filter === 'All' || employee.status === filter);
+
+  return <main className="hr-page">
+    <header className="hr-topbar">
+      <div className="brand"><span className="brand-mark small">OA</span><span>Office Attendance</span><span className="role-tag">HR workspace</span></div>
+      <div className="hr-user"><span>{user.name}</span><button className="button-secondary" onClick={logout}>Log out</button></div>
+    </header>
+    <div className="hr-content">
+      <section className="hr-page-heading">
+        <div><p className="eyebrow">People operations</p><h1>Attendance overview</h1><p className="description">Review daily attendance across your team.</p></div>
+        <label className="date-picker">Report date<input type="date" value={selectedDate} max={indiaDateInputValue()} onChange={(event) => { if (event.target.value) setSelectedDate(event.target.value); }} /></label>
+      </section>
+
+      <section className="summary-grid" aria-label="Attendance summary">
+        <article className="summary-card"><span className="summary-label">Total employees</span><strong>{employeeCount}</strong></article>
+        <article className="summary-card present-card"><span className="summary-label">Present</span><strong>{summary.present}</strong></article>
+        <article className="summary-card late-card"><span className="summary-label">Late</span><strong>{summary.late}</strong></article>
+        <article className="summary-card absent-card"><span className="summary-label">Absent</span><strong>{summary.absent}</strong></article>
+      </section>
+
+      <section className="attendance-table-card">
+        <div className="table-card-heading"><div><h2>Employee attendance</h2><p>{report ? `Attendance for ${report.date} (IST)` : 'Attendance details'}</p></div>
+          <div className="status-filters" role="group" aria-label="Filter attendance by status">
+            {['All', 'Present', 'Late', 'Absent'].map((status) => <button key={status} className={filter === status ? 'filter-active' : ''} aria-pressed={filter === status} onClick={() => setFilter(status)}>{status}</button>)}
+          </div>
+        </div>
+        {error && <p className="form-error hr-error" role="alert">{error}</p>}
+        {loading ? <div className="table-message">Loading attendance…</div> : filteredEmployees.length === 0 ? <div className="table-message">No employees match this filter.</div> : <div className="table-scroll">
+          <table className="attendance-table">
+            <thead><tr><th>Employee ID</th><th>Employee Name</th><th>Email</th><th>Punch-in Time</th><th>Status</th></tr></thead>
+            <tbody>{filteredEmployees.map((employee) => <tr key={employee.id}>
+              <td data-label="Employee ID" className="employee-id-cell">{employee.employeeId}</td>
+              <td data-label="Employee Name">{employee.name}</td>
+              <td data-label="Email">{employee.email}</td>
+              <td data-label="Punch-in Time">{employee.punchInTime ?? '—'}</td>
+              <td data-label="Status"><span className={`status-pill ${employee.status.toLowerCase()}`}>{employee.status}</span></td>
+            </tr>)}</tbody>
+          </table>
+        </div>}
+        {!loading && <p className="table-footnote">Showing {filteredEmployees.length} of {report?.employees.length ?? 0} employees</p>}
+      </section>
+    </div>
+  </main>;
+}
+
 function App() {
   return <Routes>
     <Route path="/" element={<Navigate to="/login" replace />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
     <Route element={<ProtectedRoute roles={['employee']} />}><Route path="/employee" element={<Dashboard kind="employee" />} /></Route>
-    <Route element={<ProtectedRoute roles={['hr']} />}><Route path="/hr" element={<Dashboard kind="hr" />} /></Route>
+    <Route element={<ProtectedRoute roles={['hr']} />}><Route path="/hr" element={<HrDashboard />} /></Route>
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>;
 }
