@@ -5,7 +5,9 @@ const TOKEN_KEY = 'office-attendance-token';
 
 async function apiRequest(path, options = {}) {
   const token = localStorage.getItem(TOKEN_KEY);
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(
+  `${import.meta.env.VITE_API_URL || ''}/api${path}`,
+  {
     ...options,
     headers: {
       'Content-Type': 'application/json',
